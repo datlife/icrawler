@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import tqdm
 from threading import current_thread
 
 from PIL import Image
@@ -121,6 +121,7 @@ class Downloader(ThreadPool):
                     self.logger.info('skip downloading file %s', filename)
                     return
                 self.fetched_num -= 1
+                self.progress_bar.update(1)
 
         while retry > 0 and not self.signal.get('reach_max_num'):
             try:
@@ -190,6 +191,7 @@ class Downloader(ThreadPool):
             **kwargs: Arguments passed to the :func:`download` method.
         """
         self.max_num = max_num
+        self.progress_bar = tqdm.tqdm(total=max_num)
         while True:
             if self.signal.get('reach_max_num'):
                 self.logger.info('downloaded images reach max num, thread %s'
@@ -216,6 +218,7 @@ class Downloader(ThreadPool):
         self.logger.info('thread {} exit'.format(current_thread().name))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.progress_bar.close()
         self.logger.info('all downloader threads exited')
 
 
