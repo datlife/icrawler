@@ -166,10 +166,10 @@ class Downloader(ThreadPool):
         """
         pass
 
-    def start(self, file_idx_offset=0, *args, **kwargs):
+    def start(self, file_idx_offset=0, use_progress_bar=False, *args, **kwargs):
         self.clear_status()
         self.set_file_idx_offset(file_idx_offset)
-        if kwargs['use_progress_bar']:
+        if use_progress_bar:
             self.progress_bar = tqdm.tqdm(total=kwargs['max_num'])
         self.init_workers(*args, **kwargs)
         for worker in self.workers:
