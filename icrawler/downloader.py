@@ -132,7 +132,8 @@ class Downloader(ThreadPool):
             else:
                 if self.reach_max_num():
                     self.signal.set(reach_max_num=True)
-                    self.progress_bar.close()
+                    if hasattr(self, 'progress_bar'):
+                        self.progress_bar.close()
                     break
                 elif response.status_code != 200:
                     self.logger.error('Response status code %d, file %s',
@@ -142,7 +143,8 @@ class Downloader(ThreadPool):
                     break
                 with self.lock:
                     self.fetched_num += 1
-                    self.progress_bar.update()
+                    if hasattr(self, 'progress_bar'):
+                        self.progress_bar.update()
                     filename = self.get_filename(task, default_ext)
                 self.logger.info('image #%s\t%s', self.fetched_num, file_url)
                 self.storage.write(filename, response.content)
@@ -167,7 +169,8 @@ class Downloader(ThreadPool):
     def start(self, file_idx_offset=0, *args, **kwargs):
         self.clear_status()
         self.set_file_idx_offset(file_idx_offset)
-        self.progress_bar = tqdm.tqdm(total=kwargs['max_num'])
+        if kwargs['enable_download_bar']:
+            self.progress_bar = tqdm.tqdm(total=kwargs['max_num'])
         self.init_workers(*args, **kwargs)
         for worker in self.workers:
             worker.start()

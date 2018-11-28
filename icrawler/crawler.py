@@ -37,6 +37,7 @@ class Crawler(object):
                      'root_dir': 'images'
                  },
                  log_level=logging.INFO,
+                 enable_progress_bar=False,
                  extra_feeder_args=None,
                  extra_parser_args=None,
                  extra_downloader_args=None):
@@ -52,8 +53,11 @@ class Crawler(object):
             storage (dict or BaseStorage): storage backend configuration
             log_level: logging level for the logger
         """
-
-        self.set_logger(log_level)
+        self.enable_progress_bar = enable_progress_bar
+        if  self.enable_progress_bar:
+            self.set_logger(log_level=None)
+        else:
+            self.set_logger(log_level)
         self.set_proxy_pool()
         self.set_session()
         self.init_signal()
@@ -172,6 +176,8 @@ class Crawler(object):
         feeder_kwargs = {} if feeder_kwargs is None else feeder_kwargs
         parser_kwargs = {} if parser_kwargs is None else parser_kwargs
         downloader_kwargs = {} if downloader_kwargs is None else downloader_kwargs
+        if self.enable_progress_bar:
+            downloader_kwargs['enable_download_bar'] = True
 
         self.logger.info('starting %d feeder threads...',
                          self.feeder.thread_num)
