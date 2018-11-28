@@ -263,7 +263,8 @@ class ImageDownloader(Downloader):
         if '.' in url_path:
             extension = url_path.split('.')[-1]
             if extension.lower() not in [
-                    'jpg', 'jpeg', 'png', 'bmp', 'tiff', 'gif', 'ppm', 'pgm'
+                    'jpg', 'jpeg', 'png',
+                    #  'bmp', 'tiff', 'gif', 'ppm', 'pgm'
             ]:
                 extension = default_ext
         else:
