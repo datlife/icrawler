@@ -121,7 +121,6 @@ class Downloader(ThreadPool):
                     self.logger.info('skip downloading file %s', filename)
                     return
                 self.fetched_num -= 1
-                self.progress_bar.update(1)
 
         while retry > 0 and not self.signal.get('reach_max_num'):
             try:
@@ -133,6 +132,7 @@ class Downloader(ThreadPool):
             else:
                 if self.reach_max_num():
                     self.signal.set(reach_max_num=True)
+                    self.progress_bar.close()
                     break
                 elif response.status_code != 200:
                     self.logger.error('Response status code %d, file %s',
@@ -142,6 +142,7 @@ class Downloader(ThreadPool):
                     break
                 with self.lock:
                     self.fetched_num += 1
+                    self.progress_bar.update(1)
                     filename = self.get_filename(task, default_ext)
                 self.logger.info('image #%s\t%s', self.fetched_num, file_url)
                 self.storage.write(filename, response.content)
@@ -166,6 +167,7 @@ class Downloader(ThreadPool):
     def start(self, file_idx_offset=0, *args, **kwargs):
         self.clear_status()
         self.set_file_idx_offset(file_idx_offset)
+        self.progress_bar = tqdm.tqdm(total=kwargs['max_num'])
         self.init_workers(*args, **kwargs)
         for worker in self.workers:
             worker.start()
@@ -191,7 +193,6 @@ class Downloader(ThreadPool):
             **kwargs: Arguments passed to the :func:`download` method.
         """
         self.max_num = max_num
-        self.progress_bar = tqdm.tqdm(total=max_num)
         while True:
             if self.signal.get('reach_max_num'):
                 self.logger.info('downloaded images reach max num, thread %s'
@@ -218,7 +219,6 @@ class Downloader(ThreadPool):
         self.logger.info('thread {} exit'.format(current_thread().name))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.progress_bar.close()
         self.logger.info('all downloader threads exited')
 
 
