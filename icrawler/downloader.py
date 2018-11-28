@@ -142,7 +142,8 @@ class Downloader(ThreadPool):
                     break
                 with self.lock:
                     self.fetched_num += 1
-                    self.progress_bar.update(1)
+                    print('Updating progress bar ')
+                    self.progress_bar.update()
                     filename = self.get_filename(task, default_ext)
                 self.logger.info('image #%s\t%s', self.fetched_num, file_url)
                 self.storage.write(filename, response.content)
@@ -167,6 +168,7 @@ class Downloader(ThreadPool):
     def start(self, file_idx_offset=0, *args, **kwargs):
         self.clear_status()
         self.set_file_idx_offset(file_idx_offset)
+        print('Initializing progress bar ', kwargs['max_num'])
         self.progress_bar = tqdm.tqdm(total=kwargs['max_num'])
         self.init_workers(*args, **kwargs)
         for worker in self.workers:
