@@ -4,6 +4,7 @@
 import logging
 import sys
 import time
+import tqdm
 from importlib import import_module
 
 from icrawler import Downloader, Feeder, Parser
@@ -185,7 +186,9 @@ class Crawler(object):
                          self.downloader.thread_num)
         self.downloader.start(**downloader_kwargs)
 
+        progress_bar = tqdm.tqdm(total=downloader_kwargs['max_num'])
         while True:
+            progress_bar.update(self.downloader.fetched_num)
             if not self.feeder.is_alive():
                 self.signal.set(feeder_exited=True)
             if not self.parser.is_alive():
