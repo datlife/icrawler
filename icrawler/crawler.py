@@ -176,8 +176,8 @@ class Crawler(object):
         feeder_kwargs = {} if feeder_kwargs is None else feeder_kwargs
         parser_kwargs = {} if parser_kwargs is None else parser_kwargs
         downloader_kwargs = {} if downloader_kwargs is None else downloader_kwargs
-        if self.enable_progress_bar:
-            downloader_kwargs['enable_download_bar'] = True
+        downloader_kwargs['use_progress_bar'] =  self.enable_progress_bar
+        
 
         self.logger.info('starting %d feeder threads...',
                          self.feeder.thread_num)
